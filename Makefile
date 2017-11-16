@@ -10,32 +10,36 @@ OBJCOPY = $(TC)objcopy
 # Source files, Object files, etc...
 TOP = $(shell pwd)
 BIN = $(TOP)/bin
-STMLIB = $(TOP)/libs/STM32_USB-FS-Device_Lib_V4.0.0/Libraries
+STMLIB = $(TOP)/libs/STM32Cube_FW_F1_V1.4.0/Drivers
 
 TARGET = Demo
 
-STARTUP = $(STMLIB)/CMSIS/Device/ST/STM32F10x/Source/Templates/gcc_ride7/startup_stm32f10x_md.S
+#STARTUP = $(STMLIB)/CMSIS/Device/ST/STM32F10x/Source/Templates/gcc_ride7/startup_stm32f10x_md.S
+STARTUP = $(STMLIB)/CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc/startup_stm32f103xb.s
 
-SRC = $(shell find ./ -name '*.c')  
+LIB = $(shell find ./libs -name '*.c')  
+USR = $(shell find ./usr -name '*.c')
+#include src/Makefile
 
 INC += -I$(STMLIB)/CMSIS/Include
-INC += -I$(STMLIB)/CMSIS/Device/ST/STM32F10x/Include
-INC += -I$(STMLIB)/STM32F10x_StdPeriph_Driver/inc
-INC += -I$(TOP)/inc
-INC += -I$(TOP)/led
+INC += -I$(STMLIB)/CMSIS/Device/ST/STM32F1xx/Include
+INC += -I$(STMLIB)/STM32F1xx_HAL_Driver/Inc
+INC += -I$(STMLIB)/BSP/STM32F1xx_Nucleo
+INC += -I$(TOP)/usr/inc
 
-OBJ += $(SRC:%.c=%.o)
+OBJ += $(LIB:%.c=%.o)
+OBJ += $(USR:%.c=%.o)
 OBJ += $(STARTUP:%.S=%.o)
 
 # Compiler parameters 
 MCU  = -mcpu=cortex-m3 -mthumb -mlittle-endian 
 
-# Adjust TypeOfMCU in use, see CMSIS file "stm32f10x.h"
+# Adjust TypeOfMCU in use, see CMSIS file "stm32f1xx.h"
 # STM32F103RBT (128KB FLASH, 20KB RAM) --> TypeOfMCU=STM32F10X_MD
 # STM32F103ZET (512KB FLASH, 64KB RAM) --> TypeOfMCU=STM32F10X_HD
-TypeOfMCU = STM32F10X_MD
+TypeOfMCU = STM32F103xB 
 
-MACRO  = -D$(TypeOfMCU) -DUSE_STDPERIPH_DRIVER
+MACRO  = -D$(TypeOfMCU) -DUSE_STDPERIPH_DRIVER -DARM_MATH_CM3
 
 CFLAGS = -c -Wall $(MCU) $(MACRO) $(INC) -std=c99
 
@@ -67,8 +71,7 @@ clean:
 	rm -f $(shell find ./ -name '*.bin')
 	rm -f $(shell find ./ -name '*.hex')
 
-PHONY += st-flash
-stlink: all 
-	st-flash write $(TARGET).bin 0x8000000 
+flash: all 
+	stm32flash -w $(BIN)/$(TARGET).hex -v -g 0 /dev/ttyUSB0
 
 .PHONY: PHONY
