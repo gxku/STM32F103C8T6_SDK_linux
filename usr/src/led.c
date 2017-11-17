@@ -1,10 +1,11 @@
 /**
   ******************************************************************************
-  * @file    UART/UART_Printf/Inc/main.h
+  * @file    UART/UART_Printf/Src/main.c
   * @author  MCD Application Team
   * @version V1.4.0
   * @date    29-April-2016
-  * @brief   Header for main.c module
+  * @brief   This example shows how to retarget the C library printf function
+  *          to the UART.
   ******************************************************************************
   * @attention
   *
@@ -35,49 +36,61 @@
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H
-#define __MAIN_H
-
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f1xx_hal.h"
-//#include "stm32f1xx_nucleo.h"
-#include "stdio.h"
+#include "main.h"
 
-/* Exported types ------------------------------------------------------------*/
-/* Exported constants --------------------------------------------------------*/
-/* User can use this section to tailor USARTx/UARTx instance used and associated
-   resources */
-/* Definition for USARTx clock resources */
-#define USARTx                           USART1
-#define USARTx_CLK_ENABLE()              __HAL_RCC_USART1_CLK_ENABLE();
-#define USARTx_RX_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOA_CLK_ENABLE()
-#define USARTx_TX_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOA_CLK_ENABLE()
+/** @addtogroup STM32F1xx_HAL_Examples
+  * @{
+  */
 
-#define USARTx_FORCE_RESET()             __HAL_RCC_USART1_FORCE_RESET()
-#define USARTx_RELEASE_RESET()           __HAL_RCC_USART1_RELEASE_RESET()
+/** @addtogroup UART_Printf
+  * @{
+  */
 
-/* Definition for USARTx Pins */
-#define USARTx_TX_PIN                    GPIO_PIN_9
-#define USARTx_TX_GPIO_PORT              GPIOA
-#define USARTx_RX_PIN                    GPIO_PIN_10
-#define USARTx_RX_GPIO_PORT              GPIOA
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+static GPIO_InitTypeDef  GPIO_InitStruct;
+/* Private function prototypes -----------------------------------------------*/
+
+/* Private functions ---------------------------------------------------------*/
+
+/**
+  * @brief  Main program
+  * @param  None
+  * @retval None
+  */
+int led_init(void)
+{
 
 
 
-#define LEDn                               1
+  /* -1- Enable each GPIO Clock (to be able to program the configuration registers) */
+  LED2_GPIO_CLK_ENABLE();
 
-#define LED2_PIN                           GPIO_PIN_5
-#define LED2_GPIO_PORT                     GPIOA
-#define LED2_GPIO_CLK_ENABLE()             __HAL_RCC_GPIOA_CLK_ENABLE()  
-#define LED2_GPIO_CLK_DISABLE()            __HAL_RCC_GPIOA_CLK_DISABLE()
-  
-#define LEDx_GPIO_CLK_ENABLE(__LED__)      do { if((__LED__) == LED2) { LED2_GPIO_CLK_ENABLE(); } } while(0)
+  /* -2- Configure IOs in output push-pull mode to drive external LEDs */
+  GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull  = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 
-#define LEDx_GPIO_CLK_DISABLE(__LED__)     do { if((__LED__) == LED2) { LED2_GPIO_CLK_DISABLE(); } } while(0)
-/* Exported macro ------------------------------------------------------------*/
-/* Exported functions ------------------------------------------------------- */
+  GPIO_InitStruct.Pin = LED2_PIN;
+  HAL_GPIO_Init(LED2_GPIO_PORT, &GPIO_InitStruct);
+}
 
-#endif /* __MAIN_H */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+void led_toggle(int times){
+  /* -3- Toggle IOs in an infinite loop */
+  while (times-->0)
+  {
+    HAL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
+    /* Insert delay 100 ms */
+    HAL_Delay(100);
+  }
+
+}
+ 
+void led_test(){
+	led_init();
+	led_toggle(10);
+}
