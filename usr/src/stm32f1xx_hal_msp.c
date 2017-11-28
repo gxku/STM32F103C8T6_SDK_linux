@@ -70,7 +70,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 {
   GPIO_InitTypeDef  GPIO_InitStruct;
 
-
+    if(huart->Instance == USARTx){
   /*##-1- Enable peripherals and GPIO Clocks #################################*/
   /* Enable GPIO TX/RX clock */
   USARTx_TX_GPIO_CLK_ENABLE();
@@ -93,6 +93,34 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
   GPIO_InitStruct.Pin = USARTx_RX_PIN;
 
   HAL_GPIO_Init(USARTx_RX_GPIO_PORT, &GPIO_InitStruct);
+  }
+  else if(huart->Instance == USARTy){
+  /*##-1- Enable peripherals and GPIO Clocks #################################*/
+  /* Enable GPIO TX/RX clock */
+  USARTy_TX_GPIO_CLK_ENABLE();
+  USARTy_RX_GPIO_CLK_ENABLE();
+
+
+  /* Enable USARTy clock */
+  USARTy_CLK_ENABLE();
+
+  /*##-2- Configure peripheral GPIO ##########################################*/
+  /* UART TX GPIO pin configuration  */
+  GPIO_InitStruct.Pin       = USARTy_TX_PIN;
+  GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull      = GPIO_PULLUP;
+  GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
+
+  HAL_GPIO_Init(USARTy_TX_GPIO_PORT, &GPIO_InitStruct);
+
+  /* UART RX GPIO pin configuration  */
+  GPIO_InitStruct.Pin = USARTy_RX_PIN;
+
+  HAL_GPIO_Init(USARTy_RX_GPIO_PORT, &GPIO_InitStruct);
+  }
+
+
+
 }
 
 /**
@@ -105,6 +133,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
   */
 void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
 {
+    if(huart->Instance == USARTx){
   /*##-1- Reset peripherals ##################################################*/
   USARTx_FORCE_RESET();
   USARTx_RELEASE_RESET();
@@ -114,7 +143,18 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
   HAL_GPIO_DeInit(USARTx_TX_GPIO_PORT, USARTx_TX_PIN);
   /* Configure UART Rx as alternate function  */
   HAL_GPIO_DeInit(USARTx_RX_GPIO_PORT, USARTx_RX_PIN);
+  }
+  else if(huart->Instance == USARTy){
+  /*##-1- Reset peripherals ##################################################*/
+  USARTy_FORCE_RESET();
+  USARTy_RELEASE_RESET();
 
+  /*##-2- Disable peripherals and GPIO Clocks #################################*/
+  /* Configure UART Ty as alternate function  */
+  HAL_GPIO_DeInit(USARTy_TX_GPIO_PORT, USARTy_TX_PIN);
+  /* Configure UART Rx as alternate function  */
+  HAL_GPIO_DeInit(USARTy_RX_GPIO_PORT, USARTy_RX_PIN);
+  }
 }
 
 /**

@@ -17,14 +17,6 @@
 UART_HandleTypeDef UartHandle;
 
 /* Private function prototypes -----------------------------------------------*/
-#ifdef __GNUC__
-/* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
-   set to 'Yes') calls __io_putchar() */
-#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-#else
-#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
-#endif /* __GNUC__ */
-void SystemClock_Config(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -33,7 +25,7 @@ void SystemClock_Config(void);
   * @param  None
   * @retval None
   */
-int std_test(void)
+int uart2_init(void)
 {
 
   /*##-1- Configure the UART peripheral ######################################*/
@@ -44,28 +36,21 @@ int std_test(void)
       - Parity      = ODD parity
       - BaudRate    = 9600 baud
       - Hardware flow control disabled (RTS and CTS signals) */
-  UartHandle.Instance        = USARTx;
+  UartHandle.Instance        = USARTy;
 
   UartHandle.Init.BaudRate   = 9600;
   UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
   UartHandle.Init.StopBits   = UART_STOPBITS_1;
-  UartHandle.Init.Parity     = UART_PARITY_ODD;
+  UartHandle.Init.Parity     = UART_PARITY_NONE;
   UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
   UartHandle.Init.Mode       = UART_MODE_TX_RX;
   if (HAL_UART_Init(&UartHandle) != HAL_OK)
   {
     /* Initialization Error */
-//    Error_Handler();
+    Error_Handler("init uart2 failed");
   }
 
-  /* Output a message on Hyperterminal using printf function */
-  printf("\n\r UART Printf Example: retarget the C library printf function to the UART\n\r");
-  printf("** Test finished successfully. ** \n\r");
 
-  /* Infinite loop */
-  while (1)
-  {
-  }
 }
 
 /**
@@ -73,7 +58,9 @@ int std_test(void)
   * @param  None
   * @retval None
   */
-PUTCHAR_PROTOTYPE
+
+
+static void putch(char ch)
 {
   /* Place your implementation of fputc here */
   /* e.g. write a character to the USART1 and Loop until the end of transmission */
@@ -82,3 +69,10 @@ PUTCHAR_PROTOTYPE
   return ch;
 }
 
+void    uart2_print(char* str)
+ {
+     while(*str)
+     {
+         putch(*str++);
+     }
+ }
