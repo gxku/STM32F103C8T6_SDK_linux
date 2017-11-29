@@ -26,7 +26,7 @@ MCU  = -mcpu=cortex-m3 -mthumb -mlittle-endian
 # Adjust TypeOfMCU in use, see CMSIS file "stm32f1xx.h"
 # STM32F103RBT (128KB FLASH, 20KB RAM) --> TypeOfMCU=STM32F10X_MD
 # STM32F103ZET (512KB FLASH, 64KB RAM) --> TypeOfMCU=STM32F10X_HD
-TypeOfMCU = STM32F103x8 
+TypeOfMCU = STM32F103xB 
 
 MACRO  = -D$(TypeOfMCU) -DUSE_STDPERIPH_DRIVER -DARM_MATH_CM3
 
