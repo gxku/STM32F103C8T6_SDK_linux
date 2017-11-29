@@ -30,7 +30,8 @@ TypeOfMCU = STM32F103xB
 
 MACRO  = -D$(TypeOfMCU) -DUSE_STDPERIPH_DRIVER -DARM_MATH_CM3
 
-CFLAGS = -c -Wall $(MCU) $(MACRO) $(INC) -std=c99
+CFLAGS = -c -Wall $(MCU) $(MACRO) $(INC) -std=c99 -Os -fno-exceptions
+
 
 
 # Rules shared between targets and prerequisites

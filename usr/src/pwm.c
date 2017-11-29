@@ -22,7 +22,6 @@ TIM_OC_InitTypeDef sConfig;
 uint32_t uhPrescalerValue = 0;
 
 /* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -31,24 +30,8 @@ void SystemClock_Config(void);
   * @param  None
   * @retval None
   */
-int PWM_main(void)
+void pwm_main(void)
 {
-  /* STM32F103xG HAL library initialization:
-       - Configure the Flash prefetch
-       - Systick timer is configured by default as source of time base, but user 
-         can eventually implement his proper time base source (a general purpose 
-         timer for example or other time source), keeping in mind that Time base 
-         duration should be kept 1ms since PPP_TIMEOUT_VALUEs are defined and 
-         handled in milliseconds basis.
-       - Set NVIC Group Priority to 4
-       - Low Level Initialization
-     */
-  HAL_Init();
-
-  /* Configure the system clock to 72 MHz */
-  SystemClock_Config();
-
-  /* Configure LED3 */
 
   /* Compute the prescaler value to have TIM2 counter clock equal to 2000000 Hz */
   uhPrescalerValue = (uint32_t)(SystemCoreClock / 2000000) - 1;
@@ -175,13 +158,18 @@ int PWM_main(void)
 int i=0;
   while (1)
   { /* Set the pulse value for channel 1 */
-		if(i<PERIOD_VALUE)i+=10;
+		if(i<PERIOD_VALUE)i+=1;
 		else i=0;
 		
-  sConfig.Pulse = i;
-	 HAL_TIM_OC_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_1);
-
+  	sConfig.Pulse = i;
+	HAL_TIM_OC_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_1);
 	HAL_TIM_OC_Start(&TimHandle, TIM_CHANNEL_1);
+  	sConfig.Pulse = i%128;
+	HAL_TIM_OC_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_2);
+	HAL_TIM_OC_Start(&TimHandle, TIM_CHANNEL_2);
+  	sConfig.Pulse = (i*2)%256;
+	HAL_TIM_OC_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_3);
+	HAL_TIM_OC_Start(&TimHandle, TIM_CHANNEL_3);
 	HAL_Delay(10);
   }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 

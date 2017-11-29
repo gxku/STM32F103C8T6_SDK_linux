@@ -29,5 +29,6 @@
 #define TIMx_GPIO_AF_CHANNEL4          /
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
+void  pwm_main(void);
 
 #endif /* __MAIN_H */

@@ -20,7 +20,7 @@ LDFLAGS += $(SLIB)
 # Rules shared between targets and prerequisites
 PHONY += all
 all: $(OBJ)
-	$(CC) $^ $(SLIB_PATH)  $(LDFLAGS)    -o $(BIN)/$(TARGET).elf
+	$(CC) $^ $(SLIB_PATH)  $(LDFLAGS)   -o $(BIN)/$(TARGET).elf
 	rm $(OBJ)
 	$(OBJCOPY) -Obinary $(BIN)/$(TARGET).elf $(BIN)/$(TARGET).bin
 	$(OBJCOPY) -Oihex $(BIN)/$(TARGET).elf $(BIN)/$(TARGET).hex
