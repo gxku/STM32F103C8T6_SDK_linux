@@ -3,6 +3,7 @@
 #include "main.h"
 #include "led.h"
 #include "com.h"
+#include "i2c.h"
 #include "wifi_uart.h"
 /** @addtogroup STM32F1xx_HAL_Examples
   * @{
@@ -45,9 +46,10 @@ int main(void)
 
 
   led_init();
-  com_init();
+  //com_init();
   /* Infinite loop */
   print("start ok!!");
+  i2c_main();
 //    wifi_uart_start();
   int a=0;
   while (1)

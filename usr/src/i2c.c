@@ -46,7 +46,6 @@ uint8_t aRxBuffer[RXBUFFERSIZE];
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static uint16_t Buffercmp(uint8_t* pBuffer1, uint8_t* pBuffer2, uint16_t BufferLength);
-static void Error_Handler_(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -55,24 +54,8 @@ static void Error_Handler_(void);
   * @param  None
   * @retval None
   */
-int i2c_main(void)
+void i2c_main(void)
 {
-  /* STM32F103xB HAL library initialization:
-       - Configure the Flash prefetch
-       - Systick timer is configured by default as source of time base, but user 
-         can eventually implement his proper time base source (a general purpose 
-         timer for example or other time source), keeping in mind that Time base 
-         duration should be kept 1ms since PPP_TIMEOUT_VALUEs are defined and 
-         handled in milliseconds basis.
-       - Set NVIC Group Priority to 4
-       - Low Level Initialization
-     */
-  HAL_Init();
-  
-  /* Configure the system clock to 64 MHz */
-  SystemClock_Config();
-
-  
 
   /*##-1- Configure the I2C peripheral ######################################*/
   I2cHandle.Instance             = I2Cx;
@@ -88,124 +71,71 @@ int i2c_main(void)
   if(HAL_I2C_Init(&I2cHandle) != HAL_OK)
   {
     /* Initialization Error */
-    Error_Handler_();
+    Error_Handler("HAL_I2C_Init");
   }
   
 
-	
-	
-	  while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)aTxBuffer, 2, 10000)!= HAL_OK)
-  {
-    /* Error_Handler_() function is called when Timeout error occurs.
-       When Acknowledge failure occurs (Slave don't acknowledge its address)
-       Master restarts communication */
-    if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
-    {
-      Error_Handler_();
-    }
-  }
-	while(1){
-				  while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)rTxBuffer, 2, 10000)!= HAL_OK)
-  {
-    /* Error_Handler_() function is called when Timeout error occurs.
-       When Acknowledge failure occurs (Slave don't acknowledge its address)
-       Master restarts communication */
-    if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
-    {
-      Error_Handler_();
-    }
-  }
-			  while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)gTxBuffer, 2, 10000)!= HAL_OK)
-  {
-    /* Error_Handler_() function is called when Timeout error occurs.
-       When Acknowledge failure occurs (Slave don't acknowledge its address)
-       Master restarts communication */
-    if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
-    {
-      Error_Handler_();
-    }
-  }
-			  while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)bTxBuffer, 2, 10000)!= HAL_OK)
-  {                                                                                                                                                                                          
-    /* Error_Handler_() function is called when Timeout error occurs.
-       When Acknowledge failure occurs (Slave don't acknowledge its address)
-       Master restarts communication */
-    if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
-    {
-      Error_Handler_();
-    }
-  }
-		
-	}
-	
-  /* The board sends the message and expects to receive it back */
-  
-  /*##-2- Start the transmission process #####################################*/  
-  /* While the I2C in reception process, user can transmit data through 
-     "aTxBuffer" buffer */
-  /* Timeout is set to 10S */
-  while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)I2C_ADDRESS, (uint8_t*)aTxBuffer, TXBUFFERSIZE, 10000)!= HAL_OK)
-  {
-    /* Error_Handler_() function is called when Timeout error occurs.
-       When Acknowledge failure occurs (Slave don't acknowledge its address)
-       Master restarts communication */
-    if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
-    {
-      Error_Handler_();
-    }
-  }
-  
 
-  /*##-3- Put I2C peripheral in reception process ############################*/ 
-  /* Timeout is set to 10S */ 
-  while(HAL_I2C_Master_Receive(&I2cHandle, (uint16_t)I2C_ADDRESS, (uint8_t *)aRxBuffer, RXBUFFERSIZE, 10000) != HAL_OK)
-  {
-    /* Error_Handler_() function is called when Timeout error occurs.
-       When Acknowledge failure occurs (Slave don't acknowledge it's address)
-       Master restarts communication */
-    if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
-    {
-      Error_Handler_();
-    }
-  }
-  
-  
 
-  /*##-4- Compare the sent and received buffers ##############################*/
-  if(Buffercmp((uint8_t*)aTxBuffer,(uint8_t*)aRxBuffer,RXBUFFERSIZE))
+  while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)aTxBuffer, 2, 10000)!= HAL_OK)
   {
-    /* Processing Error */
-    Error_Handler_();      
+	  /* Error_Handler_() function is called when Timeout error occurs.
+	     When Acknowledge failure occurs (Slave don't acknowledge its address)
+	     Master restarts communication */
+	  if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
+	  {
+		  Error_Handler("aTxBuffer");
+	  }
   }
- 
-  /* Infinite loop */  
-  while (1)
-  {
+  while(1){
+	  while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)rTxBuffer, 2, 10000)!= HAL_OK)
+	  {
+		  /* Error_Handler_() function is called when Timeout error occurs.
+		     When Acknowledge failure occurs (Slave don't acknowledge its address)
+		     Master restarts communication */
+		  if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
+		  {
+			  Error_Handler("rTxBuffer");
+		  }
+	  }
+	  while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)gTxBuffer, 2, 10000)!= HAL_OK)
+	  {
+		  /* Error_Handler_() function is called when Timeout error occurs.
+		     When Acknowledge failure occurs (Slave don't acknowledge its address)
+		     Master restarts communication */
+		  if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
+		  {
+			  Error_Handler("gTxBuffer");
+		  }
+	  }
+	  while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)bTxBuffer, 2, 10000)!= HAL_OK)
+	  {                                                                                                                                                                                          
+		  /* Error_Handler_() function is called when Timeout error occurs.
+		     When Acknowledge failure occurs (Slave don't acknowledge its address)
+		     Master restarts communication */
+		  if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
+		  {
+			  Error_Handler("bTxBuffer");
+		  }
+	  }
+	HAL_Delay(1000);
+
   }
+
 }
-
 /**
-  * @brief  I2C error callbacks.
-  * @param  I2cHandle: I2C handle
-  * @note   This example shows a simple way to report transfer error, and you can
-  *         add your own implementation.
-  * @retval None
-  */
+ * @brief  I2C error callbacks.
+ * @param  I2cHandle: I2C handle
+ * @note   This example shows a simple way to report transfer error, and you can
+ *         add your own implementation.
+ * @retval None
+ */
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2cHandle)
 {
-  Error_Handler_();
 }
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @param  None
-  * @retval None
-  */
-static void Error_Handler_(void)
-{
-  /* Error if LED2 is slowly blinking (1 sec. period) */
-  while(1)
-  {    
-    HAL_Delay(1000);
-  } 
-}
+ * @brief  This function is executed in case of error occurrence.
+ * @param  None
+ * @retval None
+ */
