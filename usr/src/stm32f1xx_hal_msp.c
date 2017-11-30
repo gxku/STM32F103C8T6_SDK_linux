@@ -12,6 +12,8 @@
 #include "main.h"
 #include "i2c.h"
 #include "pwm.h"
+#include "print.h"
+#include "uart.h"
 
 /** @addtogroup STM32F1xx_HAL_Examples
   * @{

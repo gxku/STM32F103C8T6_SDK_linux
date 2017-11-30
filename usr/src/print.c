@@ -1,6 +1,10 @@
 
 /* Includes ------------------------------------------------------------------*/
-#include "uart.h"
+#include <stdio.h>
+#include <stdarg.h>
+#include "print.h"
+#include "main.h"
+
 /** @addtogroup STM32F1xx_HAL_Examples
   * @{
   */
@@ -16,8 +20,6 @@
 /* UART handler declaration */
 UART_HandleTypeDef UartHandle;
 
-/* Private function prototypes -----------------------------------------------*/
-
 /* Private functions ---------------------------------------------------------*/
 
 /**
@@ -25,7 +27,7 @@ UART_HandleTypeDef UartHandle;
   * @param  None
   * @retval None
   */
-int uart2_init(void)
+int print_init(void)
 {
 
   /*##-1- Configure the UART peripheral ######################################*/
@@ -36,9 +38,9 @@ int uart2_init(void)
       - Parity      = ODD parity
       - BaudRate    = 9600 baud
       - Hardware flow control disabled (RTS and CTS signals) */
-  UartHandle.Instance        = USARTy;
+  UartHandle.Instance        = USARTx;
 
-  UartHandle.Init.BaudRate   = 9600;
+  UartHandle.Init.BaudRate   = 115200;
   UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
   UartHandle.Init.StopBits   = UART_STOPBITS_1;
   UartHandle.Init.Parity     = UART_PARITY_NONE;
@@ -47,32 +49,51 @@ int uart2_init(void)
   if (HAL_UART_Init(&UartHandle) != HAL_OK)
   {
     /* Initialization Error */
-    Error_Handler("init uart2 failed");
+    Error_Handler("init console failed");
   }
 
 
 }
 
-/**
-  * @brief  Retargets the C library printf function to the USART.
-  * @param  None
-  * @retval None
-  */
-
-
-static void putch(char ch)
+uint8_t uart_getchar(void)
 {
-  /* Place your implementation of fputc here */
-  /* e.g. write a character to the USART1 and Loop until the end of transmission */
-  HAL_UART_Transmit(&UartHandle, (uint8_t *)&ch, 1, 0xFFFF);
+    uint8_t v;
+    
+    HAL_UART_Receive(&UartHandle, &v, 1, 1000000);
 
-  return ch;
+    return v;
 }
 
-void    uart2_print(char* str)
- {
-     while(*str)
-     {
-         putch(*str++);
-     }
- }
+
+void uart_putchar(uint8_t v)
+{
+    HAL_UART_Transmit(&UartHandle, &v, 1, 5000);
+}
+
+void print(char* fmt,...)
+{
+#ifdef PRINT
+    char* pStr = 0;
+    char consoleBuf[CONFIG_CONSOLE_BUF_LEN] = {0,};
+    
+    va_list arglist;
+    va_start(arglist, fmt);
+    vsprintf(consoleBuf, fmt, arglist);
+    
+    pStr = consoleBuf;
+    
+    while ('\0' != *pStr)
+    {
+        if ('\n' == *pStr)
+        {
+            uart_putchar('\r');
+        }
+        uart_putchar(*pStr);
+        
+        pStr++;
+    } /* while */
+    
+    va_end(arglist);
+#endif
+}
+

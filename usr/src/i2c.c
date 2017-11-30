@@ -6,8 +6,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Uncomment this line to use the board as master, if not it is used as slave */
-#define MASTER_BOARD
-#define I2C_ADDRESS        0x55
+#define I2C_ADDRESS        0x30F
 
 /* I2C SPEEDCLOCK define to max value: 400 KHz on STM32F1xx*/
 #define I2C_SPEEDCLOCK   400000
@@ -15,7 +14,7 @@
 
 
 
-#define ADDR		 	0x55	/**< I2C adress of TCA62724FMG */
+//#define ADDR		 	0x55	/**< I2C adress of TCA62724FMG */
 #define SUB_ADDR_START		0x01	/**< write everything (with auto-increment) */
 #define SUB_ADDR_PWM0		0x81	/**< blue     (without auto-increment) */
 #define SUB_ADDR_PWM1		0x82	/**< green    (without auto-increment) */
@@ -57,6 +56,8 @@ static uint16_t Buffercmp(uint8_t* pBuffer1, uint8_t* pBuffer2, uint16_t BufferL
 void i2c_main(void)
 {
 
+	int i=0;
+	uint16_t ADDR=0xd0;
   /*##-1- Configure the I2C peripheral ######################################*/
   I2cHandle.Instance             = I2Cx;
   I2cHandle.Init.ClockSpeed      = I2C_SPEEDCLOCK;
@@ -77,48 +78,23 @@ void i2c_main(void)
 
 
 
-  while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)aTxBuffer, 2, 10000)!= HAL_OK)
+  //while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)aTxBuffer, 2, 10000)!= HAL_OK)
+  while(1){
+  if(HAL_I2C_Mem_Read(&I2cHandle,  ADDR, 117, 1, &(aTxBuffer[1]), 1, 1000)!= HAL_OK)
   {
+		  print("try add  %x\r\n",ADDR);
+	ADDR++;
 	  /* Error_Handler_() function is called when Timeout error occurs.
 	     When Acknowledge failure occurs (Slave don't acknowledge its address)
 	     Master restarts communication */
 	  if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
 	  {
-		  Error_Handler("aTxBuffer");
+		  //Error_Handler("aTxBuffer");
 	  }
-  }
-  while(1){
-	  while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)rTxBuffer, 2, 10000)!= HAL_OK)
-	  {
-		  /* Error_Handler_() function is called when Timeout error occurs.
-		     When Acknowledge failure occurs (Slave don't acknowledge its address)
-		     Master restarts communication */
-		  if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
-		  {
-			  Error_Handler("rTxBuffer");
-		  }
-	  }
-	  while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)gTxBuffer, 2, 10000)!= HAL_OK)
-	  {
-		  /* Error_Handler_() function is called when Timeout error occurs.
-		     When Acknowledge failure occurs (Slave don't acknowledge its address)
-		     Master restarts communication */
-		  if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
-		  {
-			  Error_Handler("gTxBuffer");
-		  }
-	  }
-	  while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)bTxBuffer, 2, 10000)!= HAL_OK)
-	  {                                                                                                                                                                                          
-		  /* Error_Handler_() function is called when Timeout error occurs.
-		     When Acknowledge failure occurs (Slave don't acknowledge its address)
-		     Master restarts communication */
-		  if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
-		  {
-			  Error_Handler("bTxBuffer");
-		  }
-	  }
-	HAL_Delay(1000);
+  }else{
+	print("the right addr = %x read= %x\r\n",ADDR,aTxBuffer[1]);
+	}
+	HAL_Delay(10);
 
   }
 

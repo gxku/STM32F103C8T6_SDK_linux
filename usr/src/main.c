@@ -2,7 +2,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "led.h"
-#include "com.h"
+#include "print.h"
 #include "i2c.h"
 #include "pwm.h"
 #include "wifi_uart.h"
@@ -47,11 +47,11 @@ int main(void)
 
 
   led_init();
-  com_init();
+  print_init();
   /* Infinite loop */
   print("start ok!!");
-//  i2c_main();
-  pwm_main();
+  i2c_main();
+//  pwm_main();
 //    wifi_uart_start();
   int a=0;
   while (1)
