@@ -12,8 +12,8 @@ SPI_HandleTypeDef SpiHandle;
 
 /* Buffer used for reception */
 #define BUFFERSIZE 10
-uint8_t aRxBuffer[BUFFERSIZE];
-uint8_t aTxBuffer[BUFFERSIZE];
+static uint8_t aRxBuffer[BUFFERSIZE];
+static uint8_t aTxBuffer[BUFFERSIZE];
 #define MASTER_BOARD
 /* Private function prototypes -----------------------------------------------*/
 
@@ -70,11 +70,6 @@ int spi_main(void)
     case HAL_OK:
       /* Communication is completed ___________________________________________ */
       /* Compare the sent and received buffers */
-      if (Buffercmp((uint8_t *)aTxBuffer, (uint8_t *)aRxBuffer, BUFFERSIZE))
-      {
-        /* Transfer error in transmission process */
-      //  Error_Handler();
-      }
       /* Turn LED2 on: Transfer in transmission/Reception process is correct */
       break;
 
@@ -82,7 +77,7 @@ int spi_main(void)
       /* An Error Occur ______________________________________________________ */
     case HAL_ERROR:
       /* Call Timeout Handler */
-     // Error_Handler();
+      Error_Handler();
       break;
     default:
       break;

@@ -41,7 +41,6 @@ uint8_t gTxBuffer[] ={0x82,250 >> 4};
 uint8_t bTxBuffer[] ={0x83,250 >> 4};
 
 /* Buffer used for reception */
-uint8_t aRxBuffer[RXBUFFERSIZE];
 
 /* Private function prototypes -----------------------------------------------*/
 
@@ -55,7 +54,6 @@ uint8_t aRxBuffer[RXBUFFERSIZE];
 void i2c_main(void)
 {
 
-	int i=0;
 	uint16_t ADDR=0x55 << 1;
   /*##-1- Configure the I2C peripheral ######################################*/
   I2cHandle.Instance             = I2Cx;
@@ -83,7 +81,7 @@ void i2c_main(void)
   if(HAL_I2C_Init(&I2cHandle) != HAL_OK)
   {
     /* Initialization Error */
-    Error_Handler("HAL_I2C_Init");
+    Error_Handler();
   }
   
 

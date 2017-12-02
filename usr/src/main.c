@@ -3,6 +3,7 @@
 #include "main.h"
 #include "led.h"
 #include "print.h"
+#include "uart.h"
 #include "i2c.h"
 #include "pwm.h"
 #include "wifi_uart.h"
@@ -21,6 +22,7 @@
 /* UART handler declaration */
 
 /* Private functions ---------------------------------------------------------*/
+void SystemClock_Config(void);
 
 /**
   * @brief  Main program
@@ -48,17 +50,18 @@ int main(void)
 
   led_init();
   print_init();
+  uart2_init();
   /* Infinite loop */
   print("start ok!!");
-  i2c_main();
+ // i2c_main();
 //  pwm_main();
 //    wifi_uart_start();
   int a=0;
   while (1)
   {
-	//led_();
+        uart2_putch(a++);	
 	HAL_Delay(1000);
-	print("a = %d\n",a++);
+	print("%s %s %d b = %d\n",__FILE__,__FUNCTION__,__LINE__,uart2_getch());
   }
 }
 
@@ -121,11 +124,13 @@ void SystemClock_Config(void)
   * @param  None
   * @retval None
   */
-void Error_Handler(char *str)
+//called by Error_Handler();
+void Error_Handler_Msg(char* file,const char* function,uint32_t line)
 {
   while (1)
   {
-	print("[Error]:%s\r\n",str);
+        print("Error_Handler msg: file:%s  function:%s line:%d\n",file,function,line);
+	HAL_Delay(1000);
 	led_toggle(10);
   }
 }
@@ -146,6 +151,9 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* Infinite loop */
   while (1)
   {
+        print("Wrong parameters value: file %s on line %d\r\n", file, line); 
+	HAL_Delay(1000);
+	led_toggle(10);
   }
 }
 #endif

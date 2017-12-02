@@ -16,9 +16,10 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
+#define CONFIG_CONSOLE_BUF_LEN              (256)
 /* Private variables ---------------------------------------------------------*/
 /* UART handler declaration */
-UART_HandleTypeDef UartHandle;
+static UART_HandleTypeDef UartHandle;
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -27,7 +28,7 @@ UART_HandleTypeDef UartHandle;
   * @param  None
   * @retval None
   */
-int print_init(void)
+void print_init(void)
 {
 
   /*##-1- Configure the UART peripheral ######################################*/
@@ -49,7 +50,7 @@ int print_init(void)
   if (HAL_UART_Init(&UartHandle) != HAL_OK)
   {
     /* Initialization Error */
-    Error_Handler("init console failed");
+    Error_Handler();
   }
 
 

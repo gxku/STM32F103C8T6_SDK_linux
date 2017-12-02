@@ -15,7 +15,7 @@
 #define USARTx_RX_PIN                    GPIO_PIN_10
 #define USARTx_RX_GPIO_PORT              GPIOA
 
-int print_init(void);
+void print_init(void);
+void print(char* fmt, ...);
 
-#define CONFIG_CONSOLE_BUF_LEN              (256)
 #endif    /*#ifndef __PRINT_H_*/

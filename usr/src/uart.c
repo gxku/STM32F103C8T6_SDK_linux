@@ -14,7 +14,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* UART handler declaration */
-UART_HandleTypeDef UartHandle;
+static UART_HandleTypeDef UartHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 
@@ -47,9 +47,9 @@ int uart2_init(void)
   if (HAL_UART_Init(&UartHandle) != HAL_OK)
   {
     /* Initialization Error */
-    Error_Handler("init uart2 failed");
+    Error_Handler();
   }
-
+  return 0;
 
 }
 
@@ -59,20 +59,30 @@ int uart2_init(void)
   * @retval None
   */
 
+uint8_t uart2_getch(void)
+{
+    uint8_t v;
+    
+    HAL_UART_Receive(&UartHandle, &v, 1, 1000000);
 
-static void putch(char ch)
+    return v;
+}
+
+void uart2_putch(char ch)
 {
   /* Place your implementation of fputc here */
   /* e.g. write a character to the USART1 and Loop until the end of transmission */
   HAL_UART_Transmit(&UartHandle, (uint8_t *)&ch, 1, 0xFFFF);
 
-  return ch;
+}
+uint8_t uart2_receive(){
+	return uart2_getch();
 }
 
-void    uart2_print(char* str)
+void    uart2_send(char* str)
  {
      while(*str)
      {
-         putch(*str++);
+         uart2_putch(*str++);
      }
  }

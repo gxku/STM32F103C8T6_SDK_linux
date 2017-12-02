@@ -8,17 +8,20 @@
 #include "stdio.h"
 
 /* Exported types ------------------------------------------------------------*/
-#define PRINT   //if use debug print
 /* Exported constants --------------------------------------------------------*/
-/* User can use this section to tailor USARTx/UARTx instance used and associated
-   resources */
+/* Exported macro ------------------------------------------------------------*/
+#define PRINT   //if use debug print
+#define Error_Handler() (Error_Handler_Msg(__FILE__, __FUNCTION__,  __LINE__))
+#define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
+/* Exported functions ------------------------------------------------------- */
 
 
 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
+void print(char* fmt, ...);
+void Error_Handler_Msg(char* file,const char* function,uint32_t line);
 
-extern void print(char* fmt, ...);
 #endif /* __MAIN_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -15,3 +15,6 @@
 #define USARTy_RX_GPIO_PORT              GPIOA
 int uart2_init(void);
 void    uart2_print(char* str);
+uint8_t uart2_receive(void);
+uint8_t uart2_getch(void);
+void uart2_putch(char ch);
