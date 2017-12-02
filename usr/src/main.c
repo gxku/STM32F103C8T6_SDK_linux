@@ -56,9 +56,9 @@ int main(void)
   int a=0;
   while (1)
   {
-	//HAL_Delay(1000);
-	led_toggle(10);
-	print("a=%x \n",a++);
+	//led_();
+	HAL_Delay(1000);
+	print("a = %d\n",a++);
   }
 }
 

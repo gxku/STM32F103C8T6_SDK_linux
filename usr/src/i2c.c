@@ -9,7 +9,8 @@
 #define I2C_ADDRESS        0x30F
 
 /* I2C SPEEDCLOCK define to max value: 400 KHz on STM32F1xx*/
-#define I2C_SPEEDCLOCK   400000
+//#define I2C_SPEEDCLOCK   400000
+#define I2C_SPEEDCLOCK   100000
 #define I2C_DUTYCYCLE    I2C_DUTYCYCLE_2
 
 
@@ -35,16 +36,14 @@ I2C_HandleTypeDef I2cHandle;
 /* Buffer used for transmission */
 //uint8_t aTxBuffer[] = " ****I2C_TwoBoards communication based on Polling****  ****I2C_TwoBoards communication based on Polling****  ****I2C_TwoBoards communication based on Polling**** ";
 uint8_t aTxBuffer[] ={0x84,0x3};
-uint8_t rTxBuffer[] ={0x81,250};
-uint8_t gTxBuffer[] ={0x82,250};
-uint8_t bTxBuffer[] ={0x83,250};
+uint8_t rTxBuffer[] ={0x81,250 >> 4};
+uint8_t gTxBuffer[] ={0x82,250 >> 4};
+uint8_t bTxBuffer[] ={0x83,250 >> 4};
 
 /* Buffer used for reception */
 uint8_t aRxBuffer[RXBUFFERSIZE];
 
 /* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-static uint16_t Buffercmp(uint8_t* pBuffer1, uint8_t* pBuffer2, uint16_t BufferLength);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -57,7 +56,7 @@ void i2c_main(void)
 {
 
 	int i=0;
-	uint16_t ADDR=0xd0;
+	uint16_t ADDR=0x55 << 1;
   /*##-1- Configure the I2C peripheral ######################################*/
   I2cHandle.Instance             = I2Cx;
   I2cHandle.Init.ClockSpeed      = I2C_SPEEDCLOCK;
@@ -68,7 +67,19 @@ void i2c_main(void)
   I2cHandle.Init.OwnAddress2     = 0xFF;
   I2cHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
   I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;  
-  
+
+/*
+  I2cHandle.Instance             = I2Cx;
+  I2cHandle.Init.Timing          = I2C_TIMING;
+  I2cHandle.Init.OwnAddress1     = I2C_ADDRESS;
+  I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+  I2cHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  I2cHandle.Init.OwnAddress2     = 0xFF;
+  I2cHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
+ */
+
+
   if(HAL_I2C_Init(&I2cHandle) != HAL_OK)
   {
     /* Initialization Error */
@@ -76,27 +87,15 @@ void i2c_main(void)
   }
   
 
-
-
-  //while(HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)aTxBuffer, 2, 10000)!= HAL_OK)
-  while(1){
-  if(HAL_I2C_Mem_Read(&I2cHandle,  ADDR, 117, 1, &(aTxBuffer[1]), 1, 1000)!= HAL_OK)
+  uint8_t data[8] = {0x84, 0x03, 0x81, 128 >> 4, 0x82, 128 >> 4, 0x83, 128 >> 4}; 
+  if (HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)data, 8, 10000)!= HAL_OK)
   {
-		  print("try add  %x\r\n",ADDR);
-	ADDR++;
-	  /* Error_Handler_() function is called when Timeout error occurs.
-	     When Acknowledge failure occurs (Slave don't acknowledge its address)
-	     Master restarts communication */
-	  if (HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
-	  {
-		  //Error_Handler("aTxBuffer");
-	  }
-  }else{
-	print("the right addr = %x read= %x\r\n",ADDR,aTxBuffer[1]);
-	}
-	HAL_Delay(10);
-
+	print("write 84 error\n");
+	return;
   }
+
+  print("write done\n");
+  return;
 
 }
 /**

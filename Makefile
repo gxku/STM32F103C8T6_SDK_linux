@@ -55,7 +55,7 @@ distclean:clean
 	
 
 flash: all 
-	stm32flash -w $(BIN)/MAIN.hex -v -g 0 /dev/ttyUSB0
+	stm32flash -w $(BIN)/MAIN.bin -v -g 0 /dev/ttyUSB0
 
 .PHONY: PHONY
 
