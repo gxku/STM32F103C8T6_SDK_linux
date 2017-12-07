@@ -836,7 +836,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, uint8_t *pData
     }
     
     /* Process Locked */
-    __HAL_LOCK(huart);
+ //   __HAL_LOCK(huart);
     
     huart->pTxBuffPtr = pData;
     huart->TxXferSize = Size;
@@ -854,7 +854,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, uint8_t *pData
     }
 
     /* Process Unlocked */
-    __HAL_UNLOCK(huart);
+   // __HAL_UNLOCK(huart);
 
     /* Enable the UART Transmit data register empty Interrupt */
     __HAL_UART_ENABLE_IT(huart, UART_IT_TXE);
@@ -888,7 +888,7 @@ HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData,
     }
 
     /* Process Locked */
-    __HAL_LOCK(huart);
+   // __HAL_LOCK(huart);
 
     huart->pRxBuffPtr = pData;
     huart->RxXferSize = Size;
@@ -906,7 +906,7 @@ HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData,
     }
 
     /* Process Unlocked */
-    __HAL_UNLOCK(huart);
+   // __HAL_UNLOCK(huart);
 
     /* Enable the UART Parity Error Interrupt */
     __HAL_UART_ENABLE_IT(huart, UART_IT_PE);

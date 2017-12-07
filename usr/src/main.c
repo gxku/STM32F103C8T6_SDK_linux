@@ -48,20 +48,21 @@ int main(void)
   SystemClock_Config();
 
 
+  print("start ok!!");
   led_init();
   print_init();
   uart2_init();
   /* Infinite loop */
-  print("start ok!!");
- // i2c_main();
+ // spi_main();
+  i2c_main();
 //  pwm_main();
 //    wifi_uart_start();
   int a=0;
   while (1)
   {
-        uart2_putch(a++);	
+//        uart2_putch(a++);	
 	HAL_Delay(1000);
-	print("%s %s %d b = %d\n",__FILE__,__FUNCTION__,__LINE__,uart2_getch());
+//	print("%s %s %d b = %d\n",__FILE__,__FUNCTION__,__LINE__,uart2_getch());
   }
 }
 

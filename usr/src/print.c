@@ -19,7 +19,7 @@
 #define CONFIG_CONSOLE_BUF_LEN              (256)
 /* Private variables ---------------------------------------------------------*/
 /* UART handler declaration */
-static UART_HandleTypeDef UartHandle;
+static UART_HandleTypeDef print_UartHandle;
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -39,15 +39,15 @@ void print_init(void)
       - Parity      = ODD parity
       - BaudRate    = 9600 baud
       - Hardware flow control disabled (RTS and CTS signals) */
-  UartHandle.Instance        = USARTx;
+  print_UartHandle.Instance        = USARTx;
 
-  UartHandle.Init.BaudRate   = 115200;
-  UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
-  UartHandle.Init.StopBits   = UART_STOPBITS_1;
-  UartHandle.Init.Parity     = UART_PARITY_NONE;
-  UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
-  UartHandle.Init.Mode       = UART_MODE_TX_RX;
-  if (HAL_UART_Init(&UartHandle) != HAL_OK)
+  print_UartHandle.Init.BaudRate   = 115200;
+  print_UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
+  print_UartHandle.Init.StopBits   = UART_STOPBITS_1;
+  print_UartHandle.Init.Parity     = UART_PARITY_NONE;
+  print_UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+  print_UartHandle.Init.Mode       = UART_MODE_TX_RX;
+  if (HAL_UART_Init(&print_UartHandle) != HAL_OK)
   {
     /* Initialization Error */
     Error_Handler();
@@ -60,7 +60,7 @@ uint8_t uart_getchar(void)
 {
     uint8_t v;
     
-    HAL_UART_Receive(&UartHandle, &v, 1, 1000000);
+    HAL_UART_Receive(&print_UartHandle, &v, 1, 1000000);
 
     return v;
 }
@@ -68,7 +68,7 @@ uint8_t uart_getchar(void)
 
 void uart_putchar(uint8_t v)
 {
-    HAL_UART_Transmit(&UartHandle, &v, 1, 5000);
+    HAL_UART_Transmit(&print_UartHandle, &v, 1, 5000);
 }
 
 void print(char* fmt,...)

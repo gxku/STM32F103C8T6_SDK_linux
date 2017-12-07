@@ -40,7 +40,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f1xx_it.h"
-
+#include "uart.h"
 /** @addtogroup STM32F1xx_HAL_Examples
   * @{
   */
@@ -172,7 +172,10 @@ void SysTick_Handler(void)
 /*void PPP_IRQHandler(void)
 {
 }*/
-
+void USARTy_IRQHandler(void)
+{
+  HAL_UART_IRQHandler(&UartHandle);
+}
 
 /**
   * @}

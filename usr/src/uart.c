@@ -14,12 +14,26 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* UART handler declaration */
-static UART_HandleTypeDef UartHandle;
+UART_HandleTypeDef UartHandle;
 
 /* Private function prototypes -----------------------------------------------*/
-
+uint8_t aRxBuffer[2]={0};
 /* Private functions ---------------------------------------------------------*/
+void uart2_test();
 
+
+
+void Error_Handler_uart2(){
+
+  if(HAL_UART_DeInit(&UartHandle) != HAL_OK)
+  {
+    Error_Handler();
+  }  
+  if(HAL_UART_Init(&UartHandle) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
 /**
   * @brief  Main program
   * @param  None
@@ -44,11 +58,17 @@ int uart2_init(void)
   UartHandle.Init.Parity     = UART_PARITY_NONE;
   UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
   UartHandle.Init.Mode       = UART_MODE_TX_RX;
-  if (HAL_UART_Init(&UartHandle) != HAL_OK)
+  if(HAL_UART_DeInit(&UartHandle) != HAL_OK)
   {
-    /* Initialization Error */
+    Error_Handler();
+  }  
+  if(HAL_UART_Init(&UartHandle) != HAL_OK)
+  {
     Error_Handler();
   }
+
+
+	uart2_test();
   return 0;
 
 }
@@ -59,30 +79,92 @@ int uart2_init(void)
   * @retval None
   */
 
-uint8_t uart2_getch(void)
-{
-    uint8_t v;
-    
-    HAL_UART_Receive(&UartHandle, &v, 1, 1000000);
-
-    return v;
-}
 
 void uart2_putch(char ch)
 {
+  aRxBuffer[0]=ch;
   /* Place your implementation of fputc here */
   /* e.g. write a character to the USART1 and Loop until the end of transmission */
-  HAL_UART_Transmit(&UartHandle, (uint8_t *)&ch, 1, 0xFFFF);
+  if(HAL_UART_Transmit_IT(&UartHandle, (uint8_t *)aRxBuffer, 1)!= HAL_OK){
+	Error_Handler_uart2();
+  }
 
-}
-uint8_t uart2_receive(){
-	return uart2_getch();
 }
 
 void    uart2_send(char* str)
  {
-     while(*str)
+     char * tmp=str;
+    int i=0;
+     while(*(tmp+i))
      {
-         uart2_putch(*str++);
+	i++;
      }
+  if(HAL_UART_Transmit_IT(&UartHandle, (uint8_t *)str, i)!= HAL_OK){
+	Error_Handler_uart2();
+  }
+	
  }
+
+/**
+  * @brief  Tx Transfer completed callback
+  * @param  UartHandle: UART handle. 
+  * @note   This example shows a simple way to report end of IT Tx transfer, and 
+  *         you can add your own implementation. 
+  * @retval None
+  */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
+{
+  /* Set transmission flag: transfer complete */
+  
+}
+
+/**
+  * @brief  Rx Transfer completed callback
+  * @param  UartHandle: UART handle
+  * @note   This example shows a simple way to report end of DMA Rx transfer, and 
+  *         you can add your own implementation.
+  * @retval None
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UHandle)
+{
+  /* Set transmission flag: transfer complete */
+	int ret=HAL_OK;
+	uart2_putch(aRxBuffer);
+	//print("uart 2 receve\n");
+
+  	//ret = HAL_UART_Transmit_IT(UHandle, (uint8_t *)aRxBuffer, 1);
+
+	//uart2_send(aRxBuffer[0]);
+ /*##-4- Put UART peripheral in reception process ###########################*/  
+  if(HAL_UART_Receive_IT(UHandle, (uint8_t *)aRxBuffer, 1) != HAL_OK)
+  {
+    Error_Handler_uart2();
+  }
+  
+  
+}
+
+/**
+  * @brief  UART error callbacks
+  * @param  UartHandle: UART handle
+  * @note   This example shows a simple way to report transfer error, and you can
+  *         add your own implementation.
+  * @retval None
+  */
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *UartHandle)
+{
+    Error_Handler_uart2();
+}
+
+
+void uart2_test(){
+  if(HAL_UART_Receive_IT(&UartHandle, (uint8_t *)aRxBuffer, 1) != HAL_OK)
+  {
+    Error_Handler_uart2();
+  }
+	while(1){
+	uart2_putch(110);
+//	HAL_UART_Transmit_IT(&UartHandle, (uint8_t *)aRxBuffer, 1);
+	HAL_Delay(1000);
+	}
+}
