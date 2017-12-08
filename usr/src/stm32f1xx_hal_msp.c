@@ -239,6 +239,12 @@ GPIO_InitTypeDef  GPIO_InitStruct;
     /* SPI MOSI GPIO pin configuration  */
     GPIO_InitStruct.Pin = SPIx_MOSI_PIN;
     HAL_GPIO_Init(SPIx_MOSI_GPIO_PORT, &GPIO_InitStruct);
+ /* NSS configure */
+        HAL_GPIO_DeInit(SPIx_NSS_GPIO_PORT, SPIx_NSS_PIN);
+        GPIO_InitStruct.Pull      = GPIO_PULLDOWN;
+        GPIO_InitStruct.Pin       = SPIx_NSS_PIN;
+        GPIO_InitStruct.Mode      = GPIO_MODE_OUTPUT_PP;
+        HAL_GPIO_Init(SPIx_NSS_GPIO_PORT, &GPIO_InitStruct);
   }
 }
 
@@ -261,6 +267,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
     HAL_GPIO_DeInit(SPIx_MISO_GPIO_PORT, SPIx_MISO_PIN);
     /* Configure SPI MOSI as alternate function  */
     HAL_GPIO_DeInit(SPIx_MOSI_GPIO_PORT, SPIx_MOSI_PIN);
+    HAL_GPIO_DeInit(SPIx_NSS_GPIO_PORT, SPIx_NSS_PIN);
   }
 }
 /**

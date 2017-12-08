@@ -48,14 +48,15 @@ int main(void)
   SystemClock_Config();
 
 
-  print("start ok!!");
   led_init();
   print_init();
+  print("start ok!!");
   uart2_init();
   i2c_init();
+  spi_init();
   /* Infinite loop */
  // spi_main();
-  i2c_test();
+  spi_test();
 //  pwm_main();
 //    wifi_uart_start();
   int a=0;
