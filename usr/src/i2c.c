@@ -84,18 +84,13 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2cHandle)
 //**************************************
 void single_writeI2C(unsigned char SlaveAddress,unsigned char REG_Address,unsigned char REG_data)
  {
-    uint8_t obuf[2] = {REG_Address, REG_data};
     
-    HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)SlaveAddress, obuf, 2, 10000);
 
-    return 0;
-#if 0
-     uint8_t rxData[2] = {REG_Address,REG_data};
-     while(HAL_I2C_Master_Transmit(&I2cHandle,ADDR,rxData,2,5000) != HAL_OK)
-     {
-         if(HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
-         {}
-     }
+#if 1
+    uint8_t obuf[2] = {REG_Address, REG_data};
+    HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)SlaveAddress, obuf, 2, 10000);
+#else
+    HAL_I2C_Mem_Write(&I2cHandle,  (uint16_t)SlaveAddress, REG_Address, 1, REG_data, 1, 10000);
 #endif
  }
  //**************************************
@@ -105,25 +100,14 @@ uint8_t single_readI2C(unsigned char SlaveAddress, unsigned char REG_Address)
  {
     unsigned char REG_data = 0x00;
     
+
+#if 0
     HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)SlaveAddress, &REG_Address, 1, 10000);
     HAL_I2C_Master_Receive(&I2cHandle, (uint16_t)SlaveAddress, &REG_data, 1, 10000);
-
-    return REG_data;
-#if 0
-     uint8_t REG_data;
-     while(HAL_I2C_Master_Transmit(&I2cHandle,ADDR,REG_Address,1,5000) != HAL_OK)
-     {
-         if(HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
-         {}
-     }
-    
-     if(HAL_I2C_Master_Receive(&I2cHandle,ADDR+1,REG_data,1,5000) != HAL_OK)
-     {
-         if(HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
-         {}
-     }
-     return REG_data;
+#else
+    HAL_I2C_Mem_Read(&I2cHandle,  (uint16_t)SlaveAddress, REG_Address, 1, &REG_data, 1, 10000);
 #endif 
+    return REG_data;
 }
 
 #define     USER_CONTROL    0x6A
@@ -145,24 +129,24 @@ uint8_t single_readI2C(unsigned char SlaveAddress, unsigned char REG_Address)
 #define     WHO_AM_I        0x75
 void i2c_test(){
 
-uint8_t bufIn[3]={0};
- uint8_t wmi, magid;
-    
-    single_writeI2C(ADDR,PWR_MGMT_1, 0x00);
-    single_writeI2C(ADDR,SMPLRT_DIV, 0x07);
-    single_writeI2C(ADDR,CONFIG, 0x06);
-    single_writeI2C(ADDR,USER_CONTROL,0x00);       //close Master Mode
-    single_writeI2C(ADDR,GYRO_CONFIG, 0x18);
-    single_writeI2C(ADDR,ACCEL_CONFIG, 0x01);
-    
-    wmi = single_readI2C(ADDR, WHO_AM_I);
-    print("MPU9250 WMI = %02x\n", wmi);
-single_writeI2C(ADDR,118,0xee);
-single_writeI2C(ADDR,119,0xee);
+	uint8_t bufIn[3]={0};
+	uint8_t wmi, magid;
 
-bufIn[0] = single_readI2C(ADDR,117);
-bufIn[1] = single_readI2C(ADDR,118);
-bufIn[2] = single_readI2C(ADDR,119);
-print(" read %0x %x %x\n",bufIn[0],bufIn[1],bufIn[2]);
+	single_writeI2C(ADDR,PWR_MGMT_1, 0x00);
+	single_writeI2C(ADDR,SMPLRT_DIV, 0x07);
+	single_writeI2C(ADDR,CONFIG, 0x06);
+	single_writeI2C(ADDR,USER_CONTROL,0x00);       //close Master Mode
+	single_writeI2C(ADDR,GYRO_CONFIG, 0x18);
+	single_writeI2C(ADDR,ACCEL_CONFIG, 0x01);
+
+	wmi = single_readI2C(ADDR, WHO_AM_I);
+	print("MPU9250 WMI = %02x\n", wmi);
+	single_writeI2C(ADDR,118,0xee);
+	single_writeI2C(ADDR,119,0xee);
+
+	bufIn[0] = single_readI2C(ADDR,117);
+	bufIn[1] = single_readI2C(ADDR,118);
+	bufIn[2] = single_readI2C(ADDR,119);
+	print(" read %0x %x %x\n",bufIn[0],bufIn[1],bufIn[2]);
 
 }

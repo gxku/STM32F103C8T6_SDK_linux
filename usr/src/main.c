@@ -56,13 +56,13 @@ int main(void)
   spi_init();
   /* Infinite loop */
  // spi_main();
-  spi_test();
 //  pwm_main();
 //    wifi_uart_start();
   int a=0;
   while (1)
   {
 //        uart2_putch(a++);	
+  i2c_test();
 	HAL_Delay(1000);
 //	print("%s %s %d b = %d\n",__FILE__,__FUNCTION__,__LINE__,uart2_getch());
   }
