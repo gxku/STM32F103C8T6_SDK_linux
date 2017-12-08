@@ -33,6 +33,10 @@ void Error_Handler_uart2(){
   {
     Error_Handler();
   }
+  if(HAL_UART_Receive_IT(&UartHandle, (uint8_t *)aRxBuffer, 1) != HAL_OK)
+  {
+    Error_Handler_uart2();
+  }
 }
 /**
   * @brief  Main program
@@ -80,7 +84,7 @@ int uart2_init(void)
   */
 
 
-void uart2_putch(char ch)
+void uart2_putch(uint8_t ch)
 {
   aRxBuffer[0]=ch;
   /* Place your implementation of fputc here */
@@ -91,15 +95,9 @@ void uart2_putch(char ch)
 
 }
 
-void    uart2_send(char* str)
+void    uart2_send(uint8_t* str,int len)
  {
-     char * tmp=str;
-    int i=0;
-     while(*(tmp+i))
-     {
-	i++;
-     }
-  if(HAL_UART_Transmit_IT(&UartHandle, (uint8_t *)str, i)!= HAL_OK){
+  if(HAL_UART_Transmit_IT(&UartHandle, (uint8_t *)str, len)!= HAL_OK){
 	Error_Handler_uart2();
   }
 	
@@ -128,14 +126,6 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UHandle)
 {
   /* Set transmission flag: transfer complete */
-	int ret=HAL_OK;
-	uart2_putch(aRxBuffer);
-	//print("uart 2 receve\n");
-
-  	//ret = HAL_UART_Transmit_IT(UHandle, (uint8_t *)aRxBuffer, 1);
-
-	//uart2_send(aRxBuffer[0]);
- /*##-4- Put UART peripheral in reception process ###########################*/  
   if(HAL_UART_Receive_IT(UHandle, (uint8_t *)aRxBuffer, 1) != HAL_OK)
   {
     Error_Handler_uart2();
@@ -163,8 +153,7 @@ void uart2_test(){
     Error_Handler_uart2();
   }
 	while(1){
-	uart2_putch(110);
-//	HAL_UART_Transmit_IT(&UartHandle, (uint8_t *)aRxBuffer, 1);
+	uart2_send(aRxBuffer,1);
 	HAL_Delay(1000);
 	}
 }
