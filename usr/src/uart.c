@@ -71,8 +71,6 @@ int uart2_init(void)
     Error_Handler();
   }
 
-
-	uart2_test();
   return 0;
 
 }

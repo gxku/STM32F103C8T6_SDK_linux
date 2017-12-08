@@ -21,7 +21,8 @@
 #define I2Cx_SDA_PIN                    GPIO_PIN_7
 #define I2Cx_SDA_GPIO_PORT              GPIOB
 
-
+void i2c_init();
+void i2c_test();
 
 #endif
 

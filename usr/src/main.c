@@ -52,9 +52,10 @@ int main(void)
   led_init();
   print_init();
   uart2_init();
+  i2c_init();
   /* Infinite loop */
  // spi_main();
-  i2c_main();
+  i2c_test();
 //  pwm_main();
 //    wifi_uart_start();
   int a=0;

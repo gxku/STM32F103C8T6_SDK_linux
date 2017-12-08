@@ -22,6 +22,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+static uint16_t ADDR=0xd0;
 /* I2C handler declaration */
 I2C_HandleTypeDef I2cHandle;
 
@@ -37,11 +38,8 @@ I2C_HandleTypeDef I2cHandle;
   * @param  None
   * @retval None
   */
-void i2c_main(void)
+void i2c_init(void)
 {
-
-	int i=0;
-	uint16_t ADDR=0xd0;
   /*##-1- Configure the I2C peripheral ######################################*/
   I2cHandle.Instance             = I2Cx;
   I2cHandle.Init.ClockSpeed      = I2C_SPEEDCLOCK;
@@ -62,30 +60,6 @@ void i2c_main(void)
   }
   
 
-  uint8_t data[8] = {117};//, 0x03, 0x81, 128 >> 4, 0x82, 128 >> 4, 0x83, 128 >> 4}; 
-uint8_t wdata[8] = {118,0xee};//, 0x03, 0x81, 128 >> 4, 0x82, 128 >> 4, 0x83, 128 >> 4}; 
-uint8_t bufIn[3]={0};
-if(0){   //can not use ,something wrong
-	HAL_I2C_Mem_Write(&I2cHandle,  (uint16_t)ADDR, 118, 1, (uint8_t*)&wdata[1], 1, 10000);
-	HAL_I2C_Mem_Read(&I2cHandle,  (uint16_t)ADDR, 117, 2, (uint8_t*)bufIn, 2, 10000);
-}else{
-
-	// write
-	if (HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)wdata, 2, 10000)!= HAL_OK)
-	{
-		print("write 84 error\n");
-		return;
-	}
-	//read
-	if (HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)ADDR, (uint8_t*)data, 1, 10000)!= HAL_OK)
-	{
-		print("write 84 error\n");
-		return;
-	}
-	HAL_I2C_Master_Receive(&I2cHandle, (uint16_t)ADDR, bufIn, 2, 10000);
-	//end of read
-} 
-print("write done and read %0x %x \n",bufIn[0],bufIn[1]);
 return;
 
 }
@@ -105,3 +79,90 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2cHandle)
  * @param  None
  * @retval None
  */
+//**************************************
+ //向I2C设备写入一个字节数据
+//**************************************
+void single_writeI2C(unsigned char SlaveAddress,unsigned char REG_Address,unsigned char REG_data)
+ {
+    uint8_t obuf[2] = {REG_Address, REG_data};
+    
+    HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)SlaveAddress, obuf, 2, 10000);
+
+    return 0;
+#if 0
+     uint8_t rxData[2] = {REG_Address,REG_data};
+     while(HAL_I2C_Master_Transmit(&I2cHandle,ADDR,rxData,2,5000) != HAL_OK)
+     {
+         if(HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
+         {}
+     }
+#endif
+ }
+ //**************************************
+ //从I2C设备读取一个字节数据
+//**************************************
+uint8_t single_readI2C(unsigned char SlaveAddress, unsigned char REG_Address)
+ {
+    unsigned char REG_data = 0x00;
+    
+    HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)SlaveAddress, &REG_Address, 1, 10000);
+    HAL_I2C_Master_Receive(&I2cHandle, (uint16_t)SlaveAddress, &REG_data, 1, 10000);
+
+    return REG_data;
+#if 0
+     uint8_t REG_data;
+     while(HAL_I2C_Master_Transmit(&I2cHandle,ADDR,REG_Address,1,5000) != HAL_OK)
+     {
+         if(HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
+         {}
+     }
+    
+     if(HAL_I2C_Master_Receive(&I2cHandle,ADDR+1,REG_data,1,5000) != HAL_OK)
+     {
+         if(HAL_I2C_GetError(&I2cHandle) != HAL_I2C_ERROR_AF)
+         {}
+     }
+     return REG_data;
+#endif 
+}
+
+#define     USER_CONTROL    0x6A
+#define     SMPLRT_DIV      0x19    //Gyro sampling rate, typical values:  0x07(125Hz)
+#define     CONFIG          0x1A    //Low pass filter frequency, typical value: 0x06(5Hz)
+#define     GYRO_CONFIG     0x1B    //Gyroscope self check and measurement range, typical value:   0x18(No self check, 2000deg/s)
+#define     ACCEL_CONFIG    0x1C    //Accelerometer measurement range, Self checking,  and high pass filtering frequency, typical values:  0x01(No self check, 2G锟?5Hz)
+//Interrup configure register
+#define     INT_BYPASS_CONFIG 0x37
+#define     INT_ENABLE      0x38
+#define     ACCEL_CONFIG_2  0x1D
+#define     MOT_DETECT_CTRL 0X69
+#define     WOM_THR         0X1F
+#define     LP_ACCEL_ODR    0X1E
+#define     INT_STATUS      0x3A
+#define     PWR_MGMT_1      0x6B    //Power management, typical values:  0x00(?y3锟??贸?)
+#define     PWR_MGMT_2      0x6C
+
+#define     WHO_AM_I        0x75
+void i2c_test(){
+
+uint8_t bufIn[3]={0};
+ uint8_t wmi, magid;
+    
+    single_writeI2C(ADDR,PWR_MGMT_1, 0x00);
+    single_writeI2C(ADDR,SMPLRT_DIV, 0x07);
+    single_writeI2C(ADDR,CONFIG, 0x06);
+    single_writeI2C(ADDR,USER_CONTROL,0x00);       //close Master Mode
+    single_writeI2C(ADDR,GYRO_CONFIG, 0x18);
+    single_writeI2C(ADDR,ACCEL_CONFIG, 0x01);
+    
+    wmi = single_readI2C(ADDR, WHO_AM_I);
+    print("MPU9250 WMI = %02x\n", wmi);
+single_writeI2C(ADDR,118,0xee);
+single_writeI2C(ADDR,119,0xee);
+
+bufIn[0] = single_readI2C(ADDR,117);
+bufIn[1] = single_readI2C(ADDR,118);
+bufIn[2] = single_readI2C(ADDR,119);
+print(" read %0x %x %x\n",bufIn[0],bufIn[1],bufIn[2]);
+
+}
