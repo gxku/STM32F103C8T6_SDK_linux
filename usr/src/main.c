@@ -52,8 +52,8 @@ int main(void)
   print_init();
   print("start ok!!");
   uart2_init();
-  i2c_init();
-  spi_init();
+//  i2c_init();
+//  spi_init();
   /* Infinite loop */
  // spi_main();
 //  pwm_main();
@@ -61,9 +61,10 @@ int main(void)
   int a=0;
   while (1)
   {
-//        uart2_putch(a++);	
-  i2c_test();
+        uart2_putch(a++);	
+//  i2c_test();
 	HAL_Delay(1000);
+        uart2_send("hello",5);
 //	print("%s %s %d b = %d\n",__FILE__,__FUNCTION__,__LINE__,uart2_getch());
   }
 }
