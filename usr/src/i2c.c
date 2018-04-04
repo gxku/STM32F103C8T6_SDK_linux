@@ -22,7 +22,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-static uint16_t ADDR=0xd0;
+static uint16_t ADDR=0x68;    //address left shift 1bit, here shift in read and write.
 /* I2C handler declaration */
 I2C_HandleTypeDef I2cHandle;
 
@@ -86,11 +86,11 @@ void single_writeI2C(unsigned char SlaveAddress,unsigned char REG_Address,unsign
  {
     
 
-#if 1
+#if 0
     uint8_t obuf[2] = {REG_Address, REG_data};
     HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)SlaveAddress, obuf, 2, 10000);
 #else
-    HAL_I2C_Mem_Write(&I2cHandle,  (uint16_t)SlaveAddress, REG_Address, 1, REG_data, 1, 10000);
+    HAL_I2C_Mem_Write(&I2cHandle,  (uint16_t)(SlaveAddress<<1), REG_Address, 1, &REG_data, 1, 10000);
 #endif
  }
  //**************************************
@@ -105,7 +105,7 @@ uint8_t single_readI2C(unsigned char SlaveAddress, unsigned char REG_Address)
     HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)SlaveAddress, &REG_Address, 1, 10000);
     HAL_I2C_Master_Receive(&I2cHandle, (uint16_t)SlaveAddress, &REG_data, 1, 10000);
 #else
-    HAL_I2C_Mem_Read(&I2cHandle,  (uint16_t)SlaveAddress, REG_Address, 1, &REG_data, 1, 10000);
+    HAL_I2C_Mem_Read(&I2cHandle,  (uint16_t)(SlaveAddress<<1), REG_Address, 1, &REG_data, 1, 10000);
 #endif 
     return REG_data;
 }
