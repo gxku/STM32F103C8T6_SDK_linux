@@ -1,4 +1,4 @@
-#ifndef     __PRINT_H_
+#ifndef    __PRINT_H_
 #define    __PRINT_H_
 /* Definition for USARTx clock resources */
 #define USARTx                           USART1

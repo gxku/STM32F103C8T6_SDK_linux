@@ -41,6 +41,7 @@
 #include "main.h"
 #include "stm32f1xx_it.h"
 #include "uart.h"
+#include "timer.h"
 /** @addtogroup STM32F1xx_HAL_Examples
   * @{
   */
@@ -177,6 +178,15 @@ void USARTy_IRQHandler(void)
   HAL_UART_IRQHandler(&UartHandle);
 }
 
+/**
+ * @brief  This function handles TIM interrupt request.
+ * @param  None
+ * @retval None
+ */
+void TIMy_IRQHandler(void)
+{
+    HAL_TIM_IRQHandler(&TimHandle);
+}
 /**
   * @}
   */

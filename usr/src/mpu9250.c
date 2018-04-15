@@ -190,38 +190,81 @@ static void I2C_Write_Reg(uint8_t reg, uint8_t value)
 // I2C read
 static void I2C_Read_Reg(uint8_t reg, uint8_t *data)
 {
-  SPI_Write_Reg(I2C_SLV0_ADDR ,MPU9250_AK8963_ADDR|0x80); //设置磁力计地址，mode：read
-  SPI_Write_Reg(I2C_SLV0_REG ,reg);// set reg addr
-  SPI_Write_Reg(I2C_SLV0_DO ,0xff);//read
-  mdelay(10);//此处因为MPU内部I2C读取速度较慢，必须延时等待内部读取完毕
-  SPI_Read_Reg(EXT_SENS_DATA_00, data);
+    int add = MPU9250_AK8963_ADDR;
+  SPI_Write_Reg(USER_CTRL ,0x20); //Set I2C_MST_EN, I2C_IF_DIS // I2C_MST_EN 
+  mdelay(5);
+  SPI_Write_Reg(/*I2C_SLV0_ADDR*/49 ,MPU9250_AK8963_ADDR|0x80); //设置磁力计地址，mode：read
+  mdelay(5);
+  SPI_Write_Reg(/*I2C_SLV0_REG*/50 ,reg);// set reg addr
+  mdelay(5);
+  SPI_Write_Reg(/*I2C_SLV0_CTRL*/52 ,0x80);
+  mdelay(150);//此处因为MPU内部I2C读取速度较慢，必须延时等待内部读取完毕
+  SPI_Read_Reg(/*EXT_SENS_DATA_00*/53, data);
+  mdelay(5);
+
+
+  print("form %d read: %d\n",add,*data);
+  SPI_Write_Reg(USER_CTRL ,0x20); //Set I2C_MST_EN, I2C_IF_DIS // I2C_MST_EN 
+  mdelay(5);
+  SPI_Write_Reg(/*I2C_SLV0_ADDR*/49 ,0x0d|0x80); //设置磁力计地址，mode：read
+  mdelay(5);
+  SPI_Write_Reg(/*I2C_SLV0_REG*/50 ,reg);// set reg addr
+  mdelay(5);
+  SPI_Write_Reg(/*I2C_SLV0_CTRL*/52 ,0x80);
+  mdelay(150);//此处因为MPU内部I2C读取速度较慢，必须延时等待内部读取完毕
+  SPI_Read_Reg(/*EXT_SENS_DATA_00*/53, data);
+  mdelay(5);
+
+
+  print("form 0x0d read: %d\n",*data);
+  SPI_Write_Reg(USER_CTRL ,0x20); //Set I2C_MST_EN, I2C_IF_DIS // I2C_MST_EN 
+  mdelay(5);
+  SPI_Write_Reg(/*I2C_SLV0_ADDR*/49 ,0x0e|0x80); //设置磁力计地址，mode：read
+  mdelay(5);
+  SPI_Write_Reg(/*I2C_SLV0_REG*/50 ,reg);// set reg addr
+  mdelay(5);
+  SPI_Write_Reg(/*I2C_SLV0_CTRL*/52 ,0x80);
+  mdelay(150);//此处因为MPU内部I2C读取速度较慢，必须延时等待内部读取完毕
+  SPI_Read_Reg(/*EXT_SENS_DATA_00*/53, data);
+  mdelay(5);
+
+
+  print("form 0x0e read: %d\n",*data);
+  SPI_Write_Reg(USER_CTRL ,0x20); //Set I2C_MST_EN, I2C_IF_DIS // I2C_MST_EN 
+  mdelay(5);
+  SPI_Write_Reg(/*I2C_SLV0_ADDR*/49 ,0x0f|0x80); //设置磁力计地址，mode：read
+  mdelay(5);
+  SPI_Write_Reg(/*I2C_SLV0_REG*/50 ,reg);// set reg addr
+  mdelay(5);
+  SPI_Write_Reg(/*I2C_SLV0_CTRL*/52 ,0x80);
+  mdelay(150);//此处因为MPU内部I2C读取速度较慢，必须延时等待内部读取完毕
+  SPI_Read_Reg(/*EXT_SENS_DATA_00*/53, data);
+  mdelay(5);
+
+
+  print("form 0x0f read: %d\n",*data);
 }
 
 //****************INIT MPU9250************************
 int8_t MPU9250_Init(void)
 { 
+  SPI_Write_Reg(PWR_MGMT_1, 0x80);  //解除休眠状态
+  mdelay(200);
   SPI_Write_Reg(PWR_MGMT_1, 0x00);  //解除休眠状态
+  mdelay(2);
   SPI_Write_Reg(CONFIG, 0x07);      //低通滤波频率，典型值：0x07(3600Hz)此寄存器内决定Internal_Sample_Rate==8K
+  mdelay(2);
 
 /*******************Init GYRO and ACCEL******************************/  
   SPI_Write_Reg(SMPLRT_DIV, 0x07);    //陀螺仪采样率，典型值：0x07(1kHz) (SAMPLE_RATE= Internal_Sample_Rate / (1 + SMPLRT_DIV) )
+  mdelay(2);
   SPI_Write_Reg(GYRO_CONFIG, 0x18);   //陀螺仪自检及测量范围，典型值：0x18(不自检，2000deg/s)
+  mdelay(2);
   SPI_Write_Reg(ACCEL_CONFIG, 0x18);  //加速计自检、测量范围，典型值：0x18(不自检，16G)
+  mdelay(2);
   SPI_Write_Reg(ACCEL_CONFIG_2, 0x08);//加速计高通滤波频率 典型值 ：0x08  （1.13kHz） ???????? 
+  mdelay(2);
     
-/**********************Init MAG **********************************/
-  I2C_Write_Reg(AK8963_CNTL2_REG,AK8963_CNTL2_SRST); // Reset AK8963
-  mdelay(2);
-  I2C_Write_Reg(AK8963_CNTL1_REG,0x12); // use i2c to set AK8963 working on Continuous measurement mode1 
-                                        // & 16-bit output  
-  mdelay(2);
-
-  // check id
-  int8_t status = 0;
-  mdelay(2);
-  status = CHECK_MPU9250_Device();
-  if (status != 1)
-    return 0;
 /**********************Init SLV0 i2c**********************************/ 
 //Use SPI-bus read slave0
   SPI_Write_Reg(INT_PIN_CFG ,0x30);// INT Pin / Bypass Enable Configuration  
@@ -232,8 +275,8 @@ int8_t MPU9250_Init(void)
   mdelay(2);
   SPI_Write_Reg(I2C_MST_DELAY_CTRL ,0x01);//I2C_SLV0 _DLY_ enable   
   mdelay(2);
- // SPI_Write_Reg(I2C_SLV0_CTRL ,0x81); //enable IIC  and EXT_SENS_DATA==1 Byte
- // mdelay(2);
+  SPI_Write_Reg(I2C_SLV0_CTRL ,0x81); //enable IIC  and EXT_SENS_DATA==1 Byte
+  mdelay(2);
 
   SPI_Write_Reg(I2C_SLV0_ADDR ,MPU9250_AK8963_ADDR|0x80); //设置磁力计地址，mode：read
   mdelay(2);
@@ -241,6 +284,19 @@ int8_t MPU9250_Init(void)
   mdelay(2);
   SPI_Write_Reg(I2C_SLV0_CTRL ,0x88); //enable IIC  and EXT_SENS_DATA==8 Byte   //when any of measurement data is read, be sure to read ST2 register at the end.
   mdelay(100);
+
+/**********************Init MAG **********************************/
+  I2C_Write_Reg(AK8963_CNTL2_REG,AK8963_CNTL2_SRST); // Reset AK8963
+  mdelay(200);
+  I2C_Write_Reg(AK8963_CNTL1_REG,0x12); // use i2c to set AK8963 working on Continuous measurement mode1 
+                                        // & 16-bit output  
+  mdelay(2);
+  // check id
+  int8_t status = 0;
+  mdelay(2);
+  status = CHECK_MPU9250_Device();
+  if (status != 1)
+    return 0;
 
 
   return 1;
@@ -263,7 +319,7 @@ int8_t CHECK_MPU9250_Device( void )
     return 0;
   }
 
-#if 0 // defined(__USE_MAG_AK8963)
+#if  defined(__USE_MAG_AK8963)
   mdelay(10);
   I2C_Read_Reg(AK8963_WHOAMI_REG, &deviceID);
   print("AK8963_WHO_AM_I in %x: %x\n", AK8963_WHOAMI_REG, deviceID);

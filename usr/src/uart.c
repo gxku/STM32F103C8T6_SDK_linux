@@ -21,7 +21,7 @@ uint8_t aRxBuffer[2]={0};
 /* Private functions ---------------------------------------------------------*/
 void uart2_test();
 
-int TX_OK=1;
+
 
 void Error_Handler_uart2(){
 
@@ -56,7 +56,7 @@ int uart2_init(void)
       - Hardware flow control disabled (RTS and CTS signals) */
   UartHandle.Instance        = USARTy;
 
-  UartHandle.Init.BaudRate   = 115200;
+  UartHandle.Init.BaudRate   = 921600;//115200;
   UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
   UartHandle.Init.StopBits   = UART_STOPBITS_1;
   UartHandle.Init.Parity     = UART_PARITY_NONE;
@@ -82,15 +82,26 @@ int uart2_init(void)
   */
 
 
+// void uart2_putch(uint8_t ch)
+// {
+//   aRxBuffer[0]=ch;
+//   /* Place your implementation of fputc here */
+//    e.g. write a character to the USART1 and Loop until the end of transmission 
+//   if(HAL_UART_Transmit_IT(&UartHandle, (uint8_t *)aRxBuffer, 1)!= HAL_OK){
+// 	Error_Handler_uart2();
+//   }
+
+// }
+
 void uart2_putch(uint8_t ch)
 {
     int ret;
   aRxBuffer[0]=ch;
   /* Place your implementation of fputc here */
-    do  
-     {  
+    do
+     {
          ret = HAL_UART_Transmit_IT(&UartHandle, (uint8_t *)aRxBuffer, 1);//请求发送下一个数据  
-     }while(ret != HAL_OK); 
+     }while(ret != HAL_OK);
 
 
 }
@@ -98,11 +109,23 @@ void uart2_putch(uint8_t ch)
 void    uart2_send(uint8_t* str,int len)
  {
     int ret;
-    do  
-     {  
+    do
+     {
          ret = HAL_UART_Transmit_IT(&UartHandle, (uint8_t *)str, len);//请求发送下一个数据  
-     }while(ret != HAL_OK); 
+     }while(ret != HAL_OK);
  }
+
+
+// void uart2_send(uint8_t* str,int len)
+//  {
+//   for (int i=0; i < len; ++i)
+//   {
+//     while (flag == 0) ;
+//     flag = 0;
+//     uart2_putch(str[i]);
+//   }
+	
+//  }
 
 /**
   * @brief  Tx Transfer completed callback
@@ -115,7 +138,6 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
 {
   /* Set transmission flag: transfer complete */
   
-        TX_OK=1;
 }
 
 /**
@@ -156,6 +178,6 @@ void uart2_test(){
   }
 	while(1){
 	uart2_send(aRxBuffer,1);
-	HAL_Delay(1000);
+	HAL_Delay(1);
 	}
 }

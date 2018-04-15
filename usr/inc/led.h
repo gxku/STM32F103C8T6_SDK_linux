@@ -6,4 +6,5 @@
 #define LED_GPIO_CLK_DISABLE()            __HAL_RCC_GPIOC_CLK_DISABLE()
   
 int led_init(void);
-void led_toggle(int times);
+void led_toggle_times(int times);
+void led_toggle(void);

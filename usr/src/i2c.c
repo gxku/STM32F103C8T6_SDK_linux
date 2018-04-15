@@ -22,7 +22,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-static uint16_t ADDR=0x68;    //address left shift 1bit, here shift in read and write.
+static uint8_t ADDR=0x68<<1;
 /* I2C handler declaration */
 I2C_HandleTypeDef I2cHandle;
 
@@ -85,12 +85,23 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2cHandle)
 void single_writeI2C(unsigned char SlaveAddress,unsigned char REG_Address,unsigned char REG_data)
  {
     
-
-#if 0
+    int ret=0;
+        HAL_Delay(10);
+#if 1
     uint8_t obuf[2] = {REG_Address, REG_data};
     HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)SlaveAddress, obuf, 2, 10000);
 #else
-    HAL_I2C_Mem_Write(&I2cHandle,  (uint16_t)(SlaveAddress<<1), REG_Address, 1, &REG_data, 1, 10000);
+    do{
+        ret= HAL_I2C_Mem_Write(&I2cHandle,  SlaveAddress, REG_Address, 1, &REG_data, 1, 10000);
+        print("single_writeI2C ret=%d\n",ret);
+        HAL_I2C_DeInit(&I2cHandle);        //释放IO口为GPIO，复位句柄状态标志
+        print("single_writeI2C111 ret=%d\n",ret);
+        HAL_I2C_Init(&I2cHandle);          //这句重新初始化I2C控制器
+        print("single_writeI2C222 ret=%d\n",ret);
+
+        HAL_Delay(10);
+    }while(ret!=HAL_OK);
+    //while(HAL_I2C_Mem_Write(&I2cHandle,  SlaveAddress<<1, REG_Address, 1, REG_data, 1, 10000)!=HAL_OK);
 #endif
  }
  //**************************************
@@ -99,13 +110,21 @@ void single_writeI2C(unsigned char SlaveAddress,unsigned char REG_Address,unsign
 uint8_t single_readI2C(unsigned char SlaveAddress, unsigned char REG_Address)
  {
     unsigned char REG_data = 0x00;
-    
+    int ret=0;    
 
+        HAL_Delay(10);
 #if 0
     HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)SlaveAddress, &REG_Address, 1, 10000);
     HAL_I2C_Master_Receive(&I2cHandle, (uint16_t)SlaveAddress, &REG_data, 1, 10000);
 #else
-    HAL_I2C_Mem_Read(&I2cHandle,  (uint16_t)(SlaveAddress<<1), REG_Address, 1, &REG_data, 1, 10000);
+    do{
+        ret= HAL_I2C_Mem_Read(&I2cHandle,  SlaveAddress, REG_Address, 1, &REG_data, 1, 10000);
+        print("single_readI2C ret=%d\n",ret);
+        HAL_I2C_DeInit(&I2cHandle);        //释放IO口为GPIO，复位句柄状态标志
+        HAL_I2C_Init(&I2cHandle);          //这句重新初始化I2C控制器
+        HAL_Delay(10);
+    }while(ret!=HAL_OK);
+    //while(HAL_I2C_Mem_Read(&I2cHandle,  SlaveAddress, REG_Address, 1, &REG_data, 1, 10000)!=HAL_OK);
 #endif 
     return REG_data;
 }
@@ -131,6 +150,8 @@ void i2c_test(){
 
 	uint8_t bufIn[3]={0};
 	uint8_t wmi, magid;
+	wmi = single_readI2C(ADDR, WHO_AM_I);
+	print("MPU9250 WMI = %02x\n", wmi);
 
 	single_writeI2C(ADDR,PWR_MGMT_1, 0x00);
 	single_writeI2C(ADDR,SMPLRT_DIV, 0x07);
@@ -139,14 +160,17 @@ void i2c_test(){
 	single_writeI2C(ADDR,GYRO_CONFIG, 0x18);
 	single_writeI2C(ADDR,ACCEL_CONFIG, 0x01);
 
-	wmi = single_readI2C(ADDR, WHO_AM_I);
-	print("MPU9250 WMI = %02x\n", wmi);
-	single_writeI2C(ADDR,118,0xee);
-	single_writeI2C(ADDR,119,0xee);
+  bufIn[0] = single_readI2C(ADDR,117);
+  bufIn[1] = single_readI2C(ADDR,118);
+  bufIn[2] = single_readI2C(ADDR,119);
+  print(" i2c read %0x %x %x\n",bufIn[0],bufIn[1],bufIn[2]);
 
-	bufIn[0] = single_readI2C(ADDR,117);
-	bufIn[1] = single_readI2C(ADDR,118);
-	bufIn[2] = single_readI2C(ADDR,119);
-	print(" read %0x %x %x\n",bufIn[0],bufIn[1],bufIn[2]);
+	//single_writeI2C(ADDR,118,0xee);
+	//single_writeI2C(ADDR,119,0xee);
+
+	//bufIn[0] = single_readI2C(ADDR,117);
+	//bufIn[1] = single_readI2C(ADDR,118);
+	//bufIn[2] = single_readI2C(ADDR,119);
+	//print(" i2c read %0x %x %x\n",bufIn[0],bufIn[1],bufIn[2]);
 
 }

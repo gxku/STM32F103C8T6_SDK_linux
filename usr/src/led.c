@@ -43,7 +43,7 @@ int led_init(void)
 }
 
 
-void led_toggle(int times){
+void led_toggle_times(int times){
   /* -3- Toggle IOs in an infinite loop */
   while (times-->0)
   {
@@ -54,7 +54,12 @@ void led_toggle(int times){
 
 }
  
+void led_toggle(void){
+    HAL_GPIO_TogglePin(LED_GPIO_PORT, LED_PIN);
+
+}
+
 void led_test(){
 	led_init();
-	led_toggle(10);
+	led_toggle_times(10);
 }

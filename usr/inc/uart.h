@@ -44,6 +44,9 @@ void uart2_putch(char ch);
 
 extern UART_HandleTypeDef UartHandle;
 
-void    uart2_send(char* str,int len);
+int uart2_init(void);
+void uart2_putch(uint8_t ch);
+void uart2_send(uint8_t* str,int len);
+void uart2_test();
 
 #endif

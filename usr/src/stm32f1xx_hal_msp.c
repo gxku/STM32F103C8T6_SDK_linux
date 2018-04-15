@@ -15,6 +15,7 @@
 #include "pwm.h"
 #include "print.h"
 #include "uart.h"
+#include "timer.h"
 
 /** @addtogroup STM32F1xx_HAL_Examples
   * @{
@@ -167,6 +168,20 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
   /* Enable I2Cx clock */
   I2Cx_CLK_ENABLE(); 
 
+  /*##-1.5- strong pull-uphigh to recover from locking in BUSY state #################################*/
+  // PB6    ---->  I2C1_SCL
+  // PB7    ---->  I2C1_SDA
+  // strong pull-uphigh to recover from locking in BUSY state
+
+  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;      //此行原有
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;   //GPIO配置为输出
+  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;         //强上拉
+  HAL_GPIO_Init(GPIOB,&GPIO_InitStruct); 
+  HAL_GPIO_WritePin(GPIOB, 6, GPIO_PIN_SET);       //拉高SCL
+  HAL_GPIO_WritePin(GPIOB, 7, GPIO_PIN_SET);       //拉高SDA
+  hi2c->Instance->CR1= I2C_CR1_SWRST;          //复位I2C控制器
+  hi2c->Instance->CR1= 0;              //解除复位（不会自动清除）
+
   /*##-2- Configure peripheral GPIO ##########################################*/  
   /* I2C TX GPIO pin configuration  */
   GPIO_InitStruct.Pin       = I2Cx_SCL_PIN;
@@ -309,6 +324,27 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
   HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL4, &GPIO_InitStruct);
 }
 
+
+/**
+ * @brief TIM MSP Initialization
+ *        This function configures the hardware resources used in this example:
+ *           - Peripheral's clock enable
+ * @param htim: TIM handle pointer
+ * @retval None
+ */
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
+{
+    /*##-1- Enable peripheral clock #################################*/
+    /* TIMx Peripheral clock enable */
+    TIMy_CLK_ENABLE();
+
+    /*##-2- Configure the NVIC for TIMx ########################################*/
+    /* Set the TIMx priority */
+    HAL_NVIC_SetPriority(TIMy_IRQn, 3, 0);
+
+    /* Enable the TIMx global Interrupt */
+    HAL_NVIC_EnableIRQ(TIMy_IRQn);
+}
 /**
   * @}
   */

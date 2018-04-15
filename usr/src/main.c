@@ -4,8 +4,10 @@
 #include "led.h"
 #include "print.h"
 #include "uart.h"
-#include "i2c.h"
+#include "mpu9250.h"
 #include "pwm.h"
+#include "i2c.h"
+#include "timer.h"
 #include "wifi_uart.h"
 /** @addtogroup STM32F1xx_HAL_Examples
   * @{
@@ -48,25 +50,27 @@ int main(void)
   SystemClock_Config();
 
 
-  led_init();
   print_init();
-  print("start ok!!");
   uart2_init();
-  i2c_init();
-//  spi_init();
+ // i2c_init();
+
+  print("start ok!!\n");
+  timer_test();
+  // for (int i=0; i < 10000; i++)
+  // {
+  //   uart_putchar('a');
+  // }
+  // uart_putchar('b');
+//    i2c_test();
+  mpu9250_main();
+
+  //uart2_init();
   /* Infinite loop */
  // spi_main();
 //  pwm_main();
 //    wifi_uart_start();
-  int a=0;
-  while (1)
-  {
-        uart2_putch(a++);	
-  i2c_test();
-	HAL_Delay(1000);
-        uart2_send("hello",5);
-//	print("%s %s %d b = %d\n",__FILE__,__FUNCTION__,__LINE__,uart2_getch());
-  }
+
+  return 0;
 }
 
 
@@ -135,7 +139,7 @@ void Error_Handler_Msg(char* file,const char* function,uint32_t line)
   {
         print("Error_Handler msg: file:%s  function:%s line:%d\n",file,function,line);
 	HAL_Delay(1000);
-	led_toggle(10);
+	led_toggle_times(10);
   }
 }
 
