@@ -1,13 +1,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "uart.h"
-/** @addtogroup STM32F1xx_HAL_Examples
-  * @{
-  */
-
-/** @addtogroup UART_Printf
-  * @{
-  */
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -56,7 +49,7 @@ int uart2_init(void)
       - Hardware flow control disabled (RTS and CTS signals) */
   UartHandle.Instance        = USARTy;
 
-  UartHandle.Init.BaudRate   = 921600;//115200;
+  UartHandle.Init.BaudRate   = 115200;
   UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
   UartHandle.Init.StopBits   = UART_STOPBITS_1;
   UartHandle.Init.Parity     = UART_PARITY_NONE;
@@ -81,18 +74,6 @@ int uart2_init(void)
   * @retval None
   */
 
-
-// void uart2_putch(uint8_t ch)
-// {
-//   aRxBuffer[0]=ch;
-//   /* Place your implementation of fputc here */
-//    e.g. write a character to the USART1 and Loop until the end of transmission 
-//   if(HAL_UART_Transmit_IT(&UartHandle, (uint8_t *)aRxBuffer, 1)!= HAL_OK){
-// 	Error_Handler_uart2();
-//   }
-
-// }
-
 void uart2_putch(uint8_t ch)
 {
     int ret;
@@ -116,16 +97,6 @@ void    uart2_send(uint8_t* str,int len)
  }
 
 
-// void uart2_send(uint8_t* str,int len)
-//  {
-//   for (int i=0; i < len; ++i)
-//   {
-//     while (flag == 0) ;
-//     flag = 0;
-//     uart2_putch(str[i]);
-//   }
-	
-//  }
 
 /**
   * @brief  Tx Transfer completed callback
@@ -150,6 +121,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UHandle)
 {
   /* Set transmission flag: transfer complete */
+//  esp_parse_char(aRxBuffer[0]);
   if(HAL_UART_Receive_IT(UHandle, (uint8_t *)aRxBuffer, 1) != HAL_OK)
   {
     Error_Handler_uart2();
