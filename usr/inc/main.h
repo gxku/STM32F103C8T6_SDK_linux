@@ -5,6 +5,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
 //#include "stm32f1xx_nucleo.h"
+#include "stm32f1xx_it.h"
 #include "stdio.h"
 
 /* Exported types ------------------------------------------------------------*/

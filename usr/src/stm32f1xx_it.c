@@ -173,9 +173,69 @@ void SysTick_Handler(void)
 /*void PPP_IRQHandler(void)
 {
 }*/
+/**
+  * @brief  This function handles DMA interrupt request.  
+  * @param  None
+  * @retval None
+  * @Note   This function is redefined in "main.h" and related to DMA  
+  *         used for USART data transmission     
+  */
+void USARTy_DMA_RX_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(UartHandle.hdmarx);
+}
+
+/**
+  * @brief  This function handles DMA interrupt request.
+  * @param  None
+  * @retval None
+  * @Note   This function is redefined in "main.h" and related to DMA  
+  *         used for USART data reception    
+  */
+void USARTy_DMA_TX_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(UartHandle.hdmatx);
+}
 void USARTy_IRQHandler(void)
 {
-  HAL_UART_IRQHandler(&UartHandle);
+	HAL_UART_IRQHandler(&UartHandle);
+	uint32_t temp;
+
+	/*	如果是串口1中断	*/
+
+	if(USART1 == UartHandle.Instance)
+
+	{	/* 如果是串口1IDLE中断	*/
+
+		if(RESET != __HAL_UART_GET_FLAG(&UartHandle,UART_FLAG_IDLE)){
+
+			/*	清除中断标志	*/
+
+			__HAL_UART_CLEAR_IDLEFLAG(&UartHandle);
+
+			/*	停止DMA接收	*/
+
+			HAL_UART_DMAStop(&UartHandle);
+
+			/*	获取DMA当前还有多少未填充	*/
+
+			temp  = __HAL_DMA_GET_COUNTER(&hdma_rx);
+#if 0
+			/*	计算串口接收到的数据个数	*/
+
+			Rx_len =  BUFFERSIZE - temp; 
+
+			recv_end_flag = 1;
+			//TODO:move data and start next recevie
+			/*	开启下一次接收	*/
+
+			HAL_UART_Receive_DMA(&UartHandle,(uint8_t*)ReceiveBuff,BUFFERSIZE);
+#endif
+		}
+
+	}
+
+	/* USER CODE END USART1_IRQn 1 */
 }
 
 /**
